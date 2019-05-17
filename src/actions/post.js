@@ -5,7 +5,7 @@ import {
     LOAD_POST_FAILURE,
     LOAD_SINGLE_POST,
     LOAD_SINGLE_POST_SUCCESS,
-    LOAD_SINGLE_POST_FAILURE
+    LOAD_SINGLE_POST_FAILURE,ADD_POST
 } from './actionTypes';
 
 const Base_url = "http://10.0.3.2:7000"
@@ -77,3 +77,23 @@ export const loadingPost =()=>{
     }
   
 }
+
+
+export const addPost = postData => dispatch => {
+    dispatch(clearErrors());
+
+    axios
+        .post("/api/posts", postData)
+        .then(res =>
+            dispatch({
+                type: ADD_POST,
+                payload: res.data
+            })
+        )
+        .catch(err =>
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+            })
+        );
+};

@@ -1,4 +1,5 @@
 export const LOGIN_USER= 'LOGIN_USER';
+export const ADD_POST= 'ADD_POST';
 export const ATTEMPT_LOGIN= 'ATTEMPT_LOGIN';
 export const GET_ERRORS= 'GET_ERRORS';
 export const LOGIN_SUCCESSFUL= 'LOGIN_SUCCESSFUL';

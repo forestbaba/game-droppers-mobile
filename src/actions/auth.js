@@ -58,36 +58,7 @@ export const loginUser = userdata => dispatch => {
             })
         );
 
-    // axios.post('http://10.0.3.2:9000/api/users/login', userdata)
-    //     .then(res => {
-    //      //   console.log('Value of res now: '+JSON.stringify(res))
-    //         if (res.data.token) {
-    //             dispatch({
-    //                 type: LOGIN_SUCCESSFUL,
-    //                 payload: res.data,
-
-    //             })
-    //             { res.data.token ? console.log('Token: ' + res.data.token) : console.log('Error') }
-    //             Actions.home();
-    //         }
-    //         else {
-    //             dispatch({
-    //                 type: LOGIN_FAILURE
-
-    //             })
-    //             console.log('Auth Action Failure...')
-    //         }
-
-    //         console.log('getting out of attempt login')
-
-    //     }
-    //     ).catch(err => {
-    //         dispatch({
-    //             type: LOGIN_FAILURE
-    //         })
-    //     })
-
-
+   
 }
 const loginSuccess = (user) => {
     dispatch({

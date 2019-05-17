@@ -4,7 +4,7 @@ import {
     LOAD_POST,
     LOAD_SINGLE_POST,
     LOAD_SINGLE_POST_SUCCESS,
-    LOAD_SINGLE_POST_FAILURE
+    LOAD_SINGLE_POST_FAILURE,ADD_POST
 } from '../actions/actionTypes';
 
 const initialState = {
@@ -46,6 +46,12 @@ export default function (state = initialState, action) {
             return {
                 ...state, loading: false, errors: "Loading post fail"
             }
+
+        case ADD_POST:
+            return {
+                ...state,
+                posts: [action.payload, ...state.posts]
+            };
 
         default:
             return state
