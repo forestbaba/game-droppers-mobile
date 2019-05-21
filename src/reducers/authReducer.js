@@ -1,15 +1,17 @@
 import { LOGIN_USER, LOGIN_FAILURE, 
-    LOGIN_SUCCESSFUL, USERNAME_CHANGED, 
+    LOGIN_SUCCESSFUL, USERNAME_CHANGED, ADD_POST,
     PASSWORD_CHANGED, 
     ATTEMPT_LOGIN} from '../actions/actionTypes';
+    import isEmpty from '../util/is-empty'
 
 const initialState = {
-    user: null,
+    user: {},
     errors: '',
     username :'',
     password:'',
     loading: false,
-    signInError: false
+    signInError: false,
+    isAuthenticated: false
 }
 
 export default function (state = initialState, action) {
@@ -22,7 +24,7 @@ export default function (state = initialState, action) {
 
         case LOGIN_SUCCESSFUL:
             return {
-                ...state,
+                ...state, isAuthenticated: !isEmpty(action.payload),
                 user: action.payload, errors: '',
                 loading:false,
                  signInError:false
@@ -39,6 +41,12 @@ export default function (state = initialState, action) {
                 loading: true,
                 signInError:false
             }
+
+    case ADD_POST:
+      return {
+        ...state,
+        posts: [action.payload, ...state.posts]
+      };
 
         default:
             return state

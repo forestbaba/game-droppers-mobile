@@ -6,7 +6,7 @@ import Home from './components/pages/Home';
 import LoadPost from './components/pages/LoadPost';
 import Dashboard from './components/Dashboard';
 import SecondDashboard from './components/pages/SecondDashboard';
-import Profile from './components/pages/Profile';
+import Profile from './components/pages/profile/Profile';
 import SinglePost from './components/pages/post/SinglePost';
 import { Text } from 'react-native'
 
@@ -47,7 +47,7 @@ class Routes extends Component {
 
               <Scene key="profile"
                 component={Home}
-                title="Profile" />
+                title="Home" />
             </Scene>
 
             <Scene key="secondScreen"
@@ -56,7 +56,7 @@ class Routes extends Component {
               animationEnabled={true} >
 
               <Scene key="secondScreen"
-                component={SecondDashboard}
+                component={Profile}
                 title="Profile" />
             </Scene>
           </Scene>

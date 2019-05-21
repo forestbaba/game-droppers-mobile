@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { View, Image, TouchableOpacity, TextInput, Dimensions, Animated,Easing } from 'react-native';
-import { loadPost } from '../../actions/post';
+import { View, Image, TouchableOpacity, TextInput, Dimensions, Animated, Easing } from 'react-native';
+import { loadPost, addPost } from '../../actions/post';
 import { Container, Header, Content, Card, CardItem, Thumbnail, Badge, Text, Button, Icon, Left, Body, Right, Fab, ListItem, Input, InputGroup } from 'native-base';
 import user from '../../img/user.png';
 import TabsItem from '../Tabitems'
@@ -12,9 +12,10 @@ import moment from 'moment'
 import { Actions } from 'react-native-router-flux';
 import ActionButton from 'react-native-action-button';
 import Toast from 'react-native-whc-toast'
-import renderIf from './renderIf';
-const {height,width} = Dimensions.get('window')
-
+import renderIf from '../../util/renderIf'
+import {NativeModules} from 'react-native'
+const { height, width } = Dimensions.get('window')
+const {ToastModule} = NativeModules;
 
 
 class Home extends Component {
@@ -26,7 +27,8 @@ class Home extends Component {
 			TextValue: '',
 			rotate: false,
 			toggle: false,
-			value: ''
+			value: '',
+			postError: ''
 
 
 		}
@@ -36,9 +38,10 @@ class Home extends Component {
 	toggleStatus() {
 		this.setState({
 			status: !this.state.status,
-			 rotate: true 
+			rotate: true
 
 		});
+		// ToastModule.showText('THis text', 3)
 		console.log('toggle button handler: ' + this.state.status);
 	}
 
@@ -83,18 +86,42 @@ class Home extends Component {
 		});
 	}
 
-	changePost(){
+	changePost() {
 		const maxLength = 100;
 		this.setState({
 			textLength: maxLength - text.length,
-			text, 
+			text,
 		});
 	}
-	
+
 
 	loadSinglePost(id) {
 		Actions.singlepost({ postid: id })
 		console.log('I should load now	}}}}>' + JSON.stringify(id))
+	}
+
+	submitPost() {
+		// e.preventDefault();
+
+
+			if (this.state.value.trim() === "") {
+				this.setState(() => ({ postError: "Post can not be empty" }));
+			} else {
+
+				const { user } = this.props.auth;
+				const newPost = {
+					text: this.state.value,
+					name: user.name,
+					avatar: user.avatar
+				};
+
+				this.props.addPost(newPost);
+
+				this.setState({ value: '' });
+				this.setState({status: !this.state.status})
+			}
+		
+		
 	}
 
 	render() {
@@ -118,7 +145,7 @@ class Home extends Component {
 		return (
 
 
-			<Container style={{ backgroundColor:'#e6e6e6'}}>
+			<Container style={{ backgroundColor: '#e6e6e6' }}>
 
 
 				{/* <Fab
@@ -147,17 +174,14 @@ class Home extends Component {
 										<Card  >
 											<CardItem>
 												<Left style={{ marginTop: -5, marginLeft: 0 }}>
-													<Thumbnail source={require('../../img/user.png')} />
+													<Thumbnail source={require('../../img/user.png')} style={{alignSelf:'flex-start'}}/>
 
 													<Body style={{ marginTop: -5, marginLeft: 0, flex: 1 }}>
 														<Text>{post.name}</Text>
 														<Text note style={{ flex: 1 }}>{post.text}</Text>
 													</Body>
 												</Left>
-
-
 											</CardItem>
-
 
 
 											<CardItem style={{ marginTop: -10, marginLeft: 60 }}>
@@ -190,19 +214,19 @@ class Home extends Component {
 					// <Toast ref="toast" />
 
 				) :
-					<View  style={{flexDirection:"column"}}>
+					<View style={{ flexDirection: "column" }}>
 
 						<Icon name="ios-close-circle" style={{ alignSelf: 'flex-end' }} />
+
 						<TextInput style={styles.textInput} placeholder="Do you care to drop two odds?"
 							underlineColorAndroid="rgba(0,0,0,0)"
 							placeholderTextColor="#dbdbde"
 							selectionColor='#ffffff'
-							multiline= {true}
+							multiline={true}
 							maxLength={200}
 							onChangeText={(value) => this.setState({ value })}
-
-						 />
-
+						/>
+						<Text style={{ color: "red", marginLeft: 20 }}>{this.state.postError}</Text>
 						<View style={{ flexDirection: 'row', backgroundColor: '#dbdbde' }}>
 							<View style={{
 								flexDirection: 'row',
@@ -210,12 +234,16 @@ class Home extends Component {
 								padding: 10, backgroundColor: '#dbdbde'
 							}}>
 								<Text> Characters Left:{this.state.value.length}/200</Text>
-								
+
+
 							</View>
 
 							<View style={{ flexGrow: 1 }}>
-								<TouchableOpacity
-									style={styles.postButton}><Text style={{ color: '#fff', textAlign: 'center' }}>Post</Text></TouchableOpacity></View>
+								<TouchableOpacity style={styles.postButton}
+									onPress={this.submitPost.bind(this)} >
+									<Text style={{ color: '#fff', textAlign: 'center' }}>Post</Text>
+								</TouchableOpacity>
+							</View>
 
 						</View>
 
@@ -223,13 +251,7 @@ class Home extends Component {
 
 					</View>
 
-					// <Content>
-					// 		<ListItem>
-					// 			<InputGroup >
-					// 				<TextInput stackedLabel label="Permanent Address" placeholder="Address" maxLength={4} />
-					// 			</InputGroup>
-					// 		</ListItem>
-					// 	</Content>
+
 				}
 
 
@@ -290,7 +312,7 @@ const styles = {
 		alignItems: 'center',
 		justifyContent: 'center'
 	},
-	postButton:{
+	postButton: {
 		alignSelf: 'flex-end',
 		marginRight: 30,
 		backgroundColor: '#1113f9',
@@ -346,13 +368,12 @@ const styles = {
 		backgroundColor: "#ffffff",
 		fontSize: 16,
 		borderRadius: 5,
-		height:80,
+		height: 80,
 		color: '#282845',
 		marginVertical: 10,
-		width:width,
-		marginLeft:10,
-		marginRight:10,
-		multiline:true
+		width: width,
+		marginLeft: 10,
+		marginRight: 10
 	},
 	loginButon: {
 		width: 300,
@@ -394,162 +415,9 @@ const styles = {
 }
 
 const mapStateToProps = state => ({
-	posts: state.posts
+	posts: state.posts,
+	auth: state.auth
 
 })
 
-export default connect(mapStateToProps, { loadPost })(Home);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import React, { Component } from 'react';
-// import { Button, Card, CardSection, Input, Spinner } from './common';
-// import { connect } from 'react-redux';
-// import { View, Text } from 'react-native';
-// import { loginUser, usernameChanged, passwordChanged } from '../actions/auth';
-
-// class LoginForm extends Component {
-// 	state = {
-// 		username: '',
-// 		password: ''
-// 	};
-
-// 	componentWillMount() {
-// 		console.log('Error wa')
-// 	}
-// 	componentDidMount() {
-// 		{ this.props.loading ? console.log('Loading --- dey' + errors) : console.log('cooool') }
-// 	}
-
-// 	onButtonPress() {
-// 		const userData = {
-// 			username: this.props.username,
-// 			password: this.props.password
-// 		};
-
-// 		this.props.loginUser(userData);
-// 		console.log('User -- data: ' + userData.username)
-
-// 	}
-// 	onusernameChanged(text) {
-// 		this.props.usernameChanged(text);
-// 	}
-// 	onPasswordChanged(text) {
-// 		this.props.passwordChanged(text);
-// 	}
-
-
-
-// 	displayErrorCheck() {
-// 		if (this.props.errors) {
-// 			return (
-// 				<View style={{ backgroundColor: 'white' }}>
-// 					<Text style={styles.errorStyle}>
-// 						{this.props.errors}
-// 					</Text>
-// 				</View>
-// 			)
-// 		}
-// 		console.log('I am Fired!!!');
-// 	}
-
-// 	renderButton() {
-// 		if (this.props.loading) {
-// 			return <Spinner size="large" />
-// 		}
-// 		return <Button onPress={this.onButtonPress.bind(this)}>
-// 			Login
-//       </Button>
-
-
-
-
-
-// 	}
-// 	render() {
-// 		return (
-// 			<Card>
-// 				<CardSection>
-// 					<Input
-// 						placeholder="theuser"
-// 						label="Username"
-// 						value={this.props.username}
-// 						onChangeText={this.onusernameChanged.bind(this)}
-// 					/>
-// 				</CardSection>
-
-
-// 				<CardSection>
-// 					<Input
-// 						secureTextEntry
-// 						placeholder="password"
-// 						label="Password"
-// 						value={this.props.password}
-// 						onChangeText={this.onPasswordChanged.bind(this)}
-// 					/>
-// 				</CardSection>
-// 				{this.displayErrorCheck}
-// 				<CardSection>
-
-// 					<Button onPress={this.onButtonPress.bind(this)}>
-// 						Login
-// 					</Button>
-// 				</CardSection>
-// 				{ this.props.signInError ? null :<Spinner size="large" />}
-// 				<Text style={[styles.errorMessage, this.props.signInError && { color: 'black' }]}>Error logging in. Please try again.</Text>
-
-// 			</Card>
-// 		);
-
-
-// 	}
-// }
-// const mapStateToProps = state => ({
-// 	auth: state.user,
-// 	errors: state.auth.errors,
-// 	username: state.auth.username,
-// 	password: state.auth.password,
-// 	loading: state.auth.loading,
-// 	signInError: state.auth.signInError
-// })
-
-// const styles = {
-// 	errorStyle: {
-// 		fontSize: 20,
-// 		alignSelf: 'center',
-// 		color: 'red'
-
-// 	},
-// 	errorMessage: {
-// 		fontSize: 12,
-// 		marginTop: 10,
-// 		color: 'transparent',
-// 		fontFamily: fonts.base
-// 	}
-// }
-// export default connect(mapStateToProps, { usernameChanged, passwordChanged, loginUser })(LoginForm);
+export default connect(mapStateToProps, { loadPost, addPost })(Home);

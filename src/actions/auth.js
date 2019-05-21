@@ -1,13 +1,15 @@
 import firebase from 'firebase';
 import axios from 'axios';
 import { Actions } from 'react-native-router-flux';
+import jwtdecode from 'jwt-decode';
 import {
     ATTEMPT_LOGIN, 
     LOGIN_SUCCESSFUL,
     LOGIN_FAILURE,
      USERNAME_CHANGED, 
      GET_ERRORS,
-    PASSWORD_CHANGED
+    PASSWORD_CHANGED,
+    SET_CURRENT_USER,ADD_POST
 } from './actionTypes';
 // import { SecureStore } from 'expo';
 
@@ -35,6 +37,9 @@ export const loginUser = userdata => dispatch => {
             if(res.data.token){
               
                global.authToken = res.data.token
+
+                const decoded = jwtdecode(res.data.token);
+               dispatch(setCurrentUser(decoded))
 
                 dispatch({
                    type: LOGIN_SUCCESSFUL,
@@ -86,5 +91,11 @@ export const loading = () => {
     return {
         type: ATTEMPT_LOGIN,
         payload: true
+    }
+}
+export const setCurrentUser =decodedUser =>{
+    return{
+        type:SET_CURRENT_USER,
+        payload: decodedUser
     }
 }
